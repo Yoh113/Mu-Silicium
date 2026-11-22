@@ -1,0 +1,30 @@
+name: Build UEFI Onyx
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+      - name: Checkout Repo & Submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Environment & Build Onyx
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          chmod +x setup_env.sh build_uefi.sh
+          ./setup_env.sh -p apt
+          ./build_uefi.sh -d onyx
+
+      - name: Upload UEFI Image
+        uses: actions/upload-artifact@v4
+        with:
+          name: UEFI-onyx
+          path: "*.img"
+
